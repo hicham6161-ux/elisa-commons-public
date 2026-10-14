@@ -1,0 +1,6 @@
+cff-version: 1.2.0
+message: "If you use this software in research, please cite the repository release."
+title: "ELISA Commons Host"
+version: "0.5.0"
+type: software
+repository-code: "https://github.com/hicham6161-ux/elisa-commons-public"
