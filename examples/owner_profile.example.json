@@ -1,0 +1,12 @@
+{
+  "display_name": "Example Owner",
+  "locale": "en",
+  "principles": [
+    "local-first",
+    "evidence-first",
+    "replaceable providers"
+  ],
+  "preferences": {
+    "response_style": "concise"
+  }
+}
