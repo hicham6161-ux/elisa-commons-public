@@ -1,0 +1,9 @@
+{
+  "model_name": "example-local-model",
+  "model_endpoint": "http://127.0.0.1:11434",
+  "memory_keys": [
+    "project.goal",
+    "working.preference"
+  ],
+  "require_local_model": true
+}
