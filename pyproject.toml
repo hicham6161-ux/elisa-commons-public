@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "elisa-commons-kernel"
+version = "0.5.0"
+description = "Local-first capability, provenance, memory and skill-governance kernel for open personal AI"
+requires-python = ">=3.11"
+dependencies = ["cryptography>=42,<47"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[project.scripts]
+elisa-commons = "elisa_commons.cli:main"
