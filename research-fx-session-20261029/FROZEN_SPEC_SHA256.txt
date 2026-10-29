@@ -1,0 +1,7 @@
+ELISA FX_SESSION_EFFECT_001 — PUBLIC RESEARCH MANIFEST
+Preregistration frozen in private ChatGPT Library before acquiring September quotes.
+Library file ID: libfile_e5800264cac48191a140013d6c925182
+SHA256: 13a572db4172ba1ae8125572066c12f3c8b78ea115fd1024e4a9c1aa059805e0
+Rule: EURUSD & GBPUSD SHORT 07:00-13:00 UTC, LONG 13:00-21:00 UTC.
+Source: HistData official public Generic ASCII 2026-09 tick BID/ASK; outbound raw quotes encrypted.
+No trading, credentials, paid services, or claims of executable prices.
