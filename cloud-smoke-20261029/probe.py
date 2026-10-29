@@ -31,7 +31,7 @@ def main():
     # Restrict only JSON syntax and frozen output enums; never prefill trading decisions.
     format_schema={"type":"object","properties":{
       "decision":{"type":"string","enum":["WAIT","NO_ENTER","ENTER"]},
-      "holding_minutes":{"type":["integer","null"],"enum":[None,5,10]},
+      "holding_minutes":{"type":["integer","null"]},
       "confidence":{"type":"number","minimum":0,"maximum":1},
       "reason_codes":{"type":"array","items":{"type":"string","enum":sorted(CODES)},"minItems":1,"maxItems":4},
       "rationale":{"type":"string","minLength":1,"maxLength":170}},
