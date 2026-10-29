@@ -1,0 +1,31 @@
+name: ELISA public FX data gate 001
+on:
+  push:
+    branches:
+      - elisa-fx-g0-20261029
+    paths:
+      - 'research-fx-g0-20261029/**'
+      - '.github/workflows/elisa-fx-g0-20261029.yml'
+permissions:
+  contents: read
+jobs:
+  bounded-public-fx:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run offline tests
+        run: python -m unittest discover -s research-fx-g0-20261029 -p 'test_probe_g0.py' -v
+      - name: Obtain public data gate metadata (no credentials)
+        run: python research-fx-g0-20261029/probe_g0.py
+      - name: Preserve only hashes and metadata; no raw third-party data
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: elisa-fx-g0-metadata-20261029
+          path: research_gate_artifacts/
+          if-no-files-found: warn
+          retention-days: 1
