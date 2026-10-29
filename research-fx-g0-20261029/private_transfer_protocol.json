@@ -1,0 +1,39 @@
+{
+  "schema": "ELISA_G0_QC_SECURE_TRANSFER_001",
+  "recorded_utc": "2026-10-29",
+  "source": "HistData public form, August 2026",
+  "symbols": [
+    "EURUSD",
+    "GBPUSD"
+  ],
+  "acquisition_budget": {
+    "max_http_requests_per_symbol": 2,
+    "max_file_bytes": 67108864,
+    "retries_after_block": false
+  },
+  "immutable_reference": {
+    "EURUSD": {
+      "zip": "09f1c164d36433e4a73958d0dcf153f9654488122ac397e2350f6c48b9df7b7a",
+      "csv": "96cf215fe8dde2405df7b56c6fc13914d266905fa3703b95430a9c4e1982330d"
+    },
+    "GBPUSD": {
+      "zip": "66a1ab6820d1fc293c1f480c2e4b53d866abbb29aebd2328d86f3e9285c55f56",
+      "csv": "8fc6f14c409f1b754a3ceb9011d63e085184cd8963c5c4a8f3a3881b40ae65c1"
+    }
+  },
+  "privacy": {
+    "public_repo": "NO RAW MARKET DATA",
+    "artifact": "RSA3072 OAEP SHA256 wrapped AES256 GCM ciphertext only",
+    "private_key": "not uploaded nor committed; local ephemeral runtime only",
+    "destination": "private ChatGPT Library",
+    "no_credentials": true
+  },
+  "analysis": {
+    "forensic_only": true,
+    "no_strategy_tuning": true,
+    "no_economic_outcomes": true,
+    "report_backsteps_and_stale_gaps": true,
+    "no_causal_reorder_or_synthetic_ticks": true
+  },
+  "go_nogo": "Market-derived signal scoring remains prohibited until independent QC and private raw preservation validated"
+}
