@@ -1,0 +1,29 @@
+name: ELISA G0 FX Tick Forensic QC 001
+on:
+  push:
+    branches: [elisa-fx-g0-20261029]
+    paths:
+      - '.github/workflows/elisa-fx-qc-20261029.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  classify-without-raw-publication:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify original validator tests
+        run: python -m unittest discover -s research-fx-g0-20261029 -p 'test_probe_g0.py' -v
+      - name: Diagnose EURUSD previous G0 anomalies, no strategy or economic evaluation
+        run: python research-fx-g0-20261029/probe_g0_qc.py
+      - name: Preserve derived counts and hashes only
+        uses: actions/upload-artifact@v4
+        with:
+          name: elisa-fx-g0-forensic-qc-20261029
+          path: research_gate_artifacts/manifest.json
+          if-no-files-found: error
+          retention-days: 1
