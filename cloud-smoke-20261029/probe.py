@@ -22,10 +22,21 @@ def validate_input(v):
 def main():
     import torch,transformers
     from transformers import AutoTokenizer,AutoModelForCausalLM
+    from lmformatenforcer import JsonSchemaParser
+    from lmformatenforcer.integrations.transformers import build_transformers_prefix_allowed_tokens_fn
     torch.set_num_threads(2)
     tokenizer=AutoTokenizer.from_pretrained(MODEL,trust_remote_code=False)
     model=AutoModelForCausalLM.from_pretrained(MODEL,torch_dtype=torch.float32,trust_remote_code=False).to("cpu").eval()
     revision=getattr(model.config,"_commit_hash",None)
+    # Restrict only JSON syntax and frozen output enums; never prefill trading decisions.
+    format_schema={"type":"object","properties":{
+      "decision":{"type":"string","enum":["WAIT","NO_ENTER","ENTER"]},
+      "holding_minutes":{"type":["integer","null"],"enum":[None,5,10]},
+      "confidence":{"type":"number","minimum":0,"maximum":1},
+      "reason_codes":{"type":"array","items":{"type":"string","enum":sorted(CODES)},"minItems":1,"maxItems":4},
+      "rationale":{"type":"string","minLength":1,"maxLength":170}},
+      "required":["decision","holding_minutes","confidence","reason_codes","rationale"],"additionalProperties":False}
+    prefix_fn=build_transformers_prefix_allowed_tokens_fn(tokenizer,JsonSchemaParser(format_schema))
     instruction = '''This is a SYNTHETIC software verification of JSON response format, not investment advice.
 Reply with ONE valid JSON object only, no Markdown or additional text.
 Use EXACT keys: decision, holding_minutes, confidence, reason_codes, rationale.
@@ -50,14 +61,14 @@ Choose the decision from the current synthetic input. Never invent future prices
         (folder/"request.json").write_bytes(rb)
         tokens=tokenizer.apply_chat_template(request["messages"],tokenize=True,add_generation_prompt=True,return_tensors="pt")
         started=utc();start=time.monotonic()
-        with torch.no_grad():generated=model.generate(tokens,max_new_tokens=180,do_sample=False,pad_token_id=tokenizer.eos_token_id)
+        with torch.no_grad():generated=model.generate(tokens,max_new_tokens=230,do_sample=False,pad_token_id=tokenizer.eos_token_id,prefix_allowed_tokens_fn=prefix_fn)
         latency=round((time.monotonic()-start)*1000,3)
         txt=tokenizer.decode(generated[0][tokens.shape[-1]:],skip_special_tokens=True).strip()
         raw=txt.encode();(folder/"response_original.txt").write_bytes(raw)
         try:dec=json.loads(txt);verify(dec);valid=True;err=None
         except Exception as e:valid=False;dec=None;err=f"{type(e).__name__}: {str(e)}"
         trace={"case":item["case"],"backend":"LOCAL_CPU_TRANSFORMERS","model":MODEL,"model_revision_reported":revision,
-               "model_identity_cryptographically_verified":False,"real_model_generate_called":True,"request_sha256":sha(rb),
+               "model_identity_cryptographically_verified":False,"real_model_generate_called":True,"constrained_json_decoding":True,"request_sha256":sha(rb),
                "response_sha256":sha(raw),"started_at_utc":started,"latency_ms":latency,"input_tokens":int(tokens.shape[-1]),
                "output_tokens":int(generated.shape[-1]-tokens.shape[-1]),"decision":dec,"valid":valid,"error":err,
                "cost_usd":None,"is_economic_pilot":False}
