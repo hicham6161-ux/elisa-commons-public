@@ -1,0 +1,20 @@
+{
+  "schema": "ELISA_INDEX_CLOSE_MOMENTUM_PUBLIC_EXEC_MANIFEST_001",
+  "symbols": [
+    "SPY",
+    "QQQ"
+  ],
+  "frozen_library_preregistration_id": "libfile_1ae0537ca19c8191854eb2fd72618796",
+  "frozen_full_prereg_sha256": "885ef8f9657a150fad205aa99712b34b8aaa32aec7b29c58988741ad7a115f39",
+  "source": "Yahoo indicative public 5m OHLC",
+  "period": "2026-09-30 to 2026-10-28 inclusive ET",
+  "evaluation": "October 21-28 ET; compare rest of October exploratory",
+  "decision": "15:30 ET using current day 15:25 bar close against previous complete session close",
+  "entry": "15:35 ET open",
+  "exit": "15:55 ET bar close",
+  "main_friction_bps_per_side": 10,
+  "stress_bps_per_side": 15,
+  "notional_usd": 10,
+  "no_real_orders": true,
+  "no_short_access_certified": true
+}
