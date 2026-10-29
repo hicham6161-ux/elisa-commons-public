@@ -1,0 +1,13 @@
+{
+  "schema": "ELISA_FX_G0_QC_001",
+  "date": "2026-10-29",
+  "purpose": "Diagnose the 81 unparseable EURUSD rows from independent completed G0 without changing or retroactively passing that gate",
+  "source_symbol": "EURUSD",
+  "source_month": "2026-08",
+  "max_requests": 2,
+  "same_official_public_download_form": true,
+  "only_new_derived_output": "error category counts and source hashes, no raw market data publication",
+  "no_economic_scoring": true,
+  "fail_if_access_blocked": true,
+  "no_paid_services": true
+}
