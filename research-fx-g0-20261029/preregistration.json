@@ -1,0 +1,15 @@
+{
+  "schema": "ELISA_FX_G0_DATA_GATE_001",
+  "date_frozen_utc": "2026-10-29",
+  "goal": "Verify legitimate public access to historical BID/ASK tick archives before any trading or strategy evaluation",
+  "research_source_primary": "HistData.com free Generic ASCII tick quotes",
+  "research_source_truefx": "NOT_USED_REQUIRES_LOGGED_IN_ACCOUNT; no credentials requested or bypass attempted",
+  "fixed_sources": ["EURUSD", "GBPUSD"],
+  "source_month": "2026-08",
+  "acquisition": {"allow_public_webform_only": true,"max_http_requests_per_symbol": 2,"max_download_bytes_per_symbol": 67108864,"no_retries_after_block": true,"no_paid_resources": true},
+  "controls": ["ZIP CRC", "exact original ZIP SHA-256", "CSV SHA-256", "parse quoted BID and ASK", "source timezone EST UTC-5 without DST", "chronology", "no crossed/negative quotes", "report gaps and missing observations"],
+  "not_strategy_test": true,
+  "prohibited": ["real_orders", "leveraged_positions", "private_keys", "model_inference", "claim_profitability", "alter_legacy_ELISA", "publish_private_ELISA_code_or_data"],
+  "next_gate_if_data_ok": "pre-register ONE jump continuation hypothesis with chronological holdout before any economic scoring; do not reuse previously inspected periods as fresh holdout",
+  "source_license_note": "Raw external ticks are not committed or published in public GitHub repository or artifacts; only metadata and hashes. Verify redistribution and private retention rights before saving raw data in a new destination."
+}
