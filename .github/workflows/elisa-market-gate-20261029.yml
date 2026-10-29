@@ -1,0 +1,29 @@
+name: ELISA Q3 2026 public Kraken two-pair data extraction
+on:
+  push:
+    branches: [elisa-market-gate-20261029]
+    paths:
+      - '.github/workflows/elisa-market-gate-20261029.yml'
+      - 'market-gate-20261029/acquire_kraken_ranges.py'
+permissions:
+  contents: read
+jobs:
+  bounded-public-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch only Kraken official BTC EUR and ETH EUR Q3 ZIP members via HTTP Range
+        run: python market-gate-20261029/acquire_kraken_ranges.py
+      - name: Preserve raw public market source bytes and HTTP acquisition log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kraken-2026q3-ohlcvt-two-pairs-raw
+          path: kraken_2026q3_evidence/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 6
