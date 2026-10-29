@@ -1,0 +1,47 @@
+name: ELISA October Index Close Momentum Research 001
+on:
+  push:
+    branches: [elisa-index-close-20261029]
+    paths:
+      - '.github/workflows/elisa-index-close-20261029.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  research-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install local encryption dependency
+        run: python -m pip install 'cryptography>=44,<47'
+      - name: Verify deterministic synthetic tests
+        run: python -m unittest discover -s research-index-close-20261029 -p 'test_index.py' -v
+      - name: Fetch historical public SPY and QQQ bars; run frozen research rule and independent auditor
+        run: cd research-index-close-20261029 && python run_index.py
+      - name: Verify new source and audit before accepting result
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('research-index-close-20261029/index_momentum_artifact')
+          r=json.loads((p/'research_results.json').read_bytes())
+          a=json.loads((p/'independent_audit.json').read_bytes())
+          assert set(r['source_receipts'])=={'SPY','QQQ'}, r.get('errors')
+          assert a['status']=='PASS',a
+          assert len(json.loads((p/'virtual_decisions.json').read_bytes()))==40
+          print('ELISA_CLOUD_RESEARCH_GATE=PASS data acquired, 40 decisions independently audited; NOT economic promotion')
+          PY
+      - name: Preserve derived results and original encrypted market responses
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: elisa-index-close-oct-2026-raw-encrypted-and-audited
+          path: research-index-close-20261029/index_momentum_artifact/
+          if-no-files-found: error
+          retention-days: 2
+          compression-level: 6
