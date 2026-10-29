@@ -32,7 +32,7 @@ def main():
         "decision WAIT, NO_ENTER, or ENTER. If ENTER holding_minutes 5 or 10, otherwise null. "
         "confidence a numeric value 0..1. reason_codes 1-4 from NO_CLEAR_EDGE,COST_MARGIN_POOR,"
         "TREND_5M_SUPPORTIVE,MOMENTUM_1M,ABSTAIN_UNCERTAIN. rationale short string. "
-        "If there is no clear advantage after costs, choose WAIT or NO_ENTER.")
+        "If there is no clear advantage after costs, choose WAIT or NO_ENTER. JSON syntax is mandatory: double-quote each string including each reason code, and use the literal null for WAIT/NO_ENTER holding_minutes. Sample of valid FORMAT ONLY: {"decision":"WAIT","holding_minutes":null,"confidence":0.5,"reason_codes":["NO_CLEAR_EDGE"],"rationale":"No clear edge after costs."}. This example is syntax guidance, not a prescribed answer; base each answer on its input.")
     controls=[{"case":"SYNTHETIC_FLAT","one_minute_bps":0,"five_minute_bps":0,"roundtrip_cost_bps":166},
               {"case":"SYNTHETIC_TREND","one_minute_bps":55,"five_minute_bps":130,"roundtrip_cost_bps":166}]
     try:validate_input({"case":"INVALID","one_minute_bps":"future","five_minute_bps":0,"roundtrip_cost_bps":166});negative=False
