@@ -1,0 +1,46 @@
+name: ELISA FX Session September 2026 — Encrypted Public Source
+on:
+  push:
+    branches: [elisa-fx-session-20261029]
+    paths:
+      - '.github/workflows/elisa-fx-session-20261029.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  bounded-public-september-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install AES GCM RSA crypto dependency
+        run: python -m pip install 'cryptography>=44,<47'
+      - name: Verify preregistration and public encryption recipient are frozen
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from cryptography.hazmat.primitives import serialization
+          import hashlib
+          p=Path('research-fx-session-20261029/research_recipient.pem').read_bytes()
+          assert hashlib.sha256(p).hexdigest()=='a2ef94c5d0997355aa4761e86ba7cadf1e2c21ed99247b305dd1560a36a6ef58'
+          key=serialization.load_pem_public_key(p)
+          assert key.key_size==3072
+          protocol=Path('research-fx-session-20261029/FROZEN_SPEC_SHA256.txt').read_text()
+          assert '13a572db4172ba1ae8125572066c12f3c8b78ea115fd1024e4a9c1aa059805e0' in protocol
+          print('ELISA_PROTOCOL_AND_KEY=PASS')
+          PY
+      - name: Retrieve September public quote archives via authorized form and encrypt before upload
+        run: python research-fx-session-20261029/acquire_202609.py
+      - name: Upload encrypted raw vendor source and metadata ONLY
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: elisa-fx-september-2026-encrypted-vendor-source
+          path: research-fx-session-20261029/encrypted_evidence/
+          retention-days: 2
+          if-no-files-found: error
+          compression-level: 0
