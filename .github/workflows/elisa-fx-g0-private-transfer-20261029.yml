@@ -1,0 +1,45 @@
+name: ELISA G0 Secure Forex Source Preservation
+on:
+  push:
+    branches: [elisa-fx-g0-20261029]
+    paths:
+      - '.github/workflows/elisa-fx-g0-private-transfer-20261029.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  bounded-raw-encrypted-transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install audited envelope crypto dependency
+        run: python -m pip install 'cryptography>=44,<47'
+      - name: Verify existing data form and temporal parser fixtures
+        run: python -m unittest discover -s research-fx-g0-20261029 -p 'test_probe_g0.py' -v
+      - name: Verify public recipient key and capture only ciphertext
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('research-fx-g0-20261029/recipient_public_key.pem').read_bytes()
+          got=hashlib.sha256(p).hexdigest()
+          expected='5db48619f645b4e3e5abb2366bd9b57df13b5aff90f3276e19c18199ce4b05a5'
+          assert got==expected,(got,'public key mismatch')
+          print('G0_RECIPIENT_KEY_CHECK=PASS')
+          PY
+      - name: Bounded public-form acquisition and forensic QC with encryption
+        run: python research-fx-g0-20261029/secure_qc_capture.py
+      - name: Publish ENCRYPTED vendor files and derived QC metadata only
+        uses: actions/upload-artifact@v4
+        with:
+          name: elisa-g0-private-encrypted-source-20261029
+          path: elisa_g0_private_ciphertext/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
