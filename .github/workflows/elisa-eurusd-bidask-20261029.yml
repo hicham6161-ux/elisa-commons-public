@@ -1,0 +1,28 @@
+name: ELISA public Dukascopy EURUSD BID ASK quote capture
+on:
+  push:
+    branches: [elisa-eurusd-bidask-20261029]
+    paths:
+      - '.github/workflows/elisa-eurusd-bidask-20261029.yml'
+      - 'public-quote-capture-20261029/fetch.py'
+permissions:
+  contents: read
+jobs:
+  public-quotes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download public bid ask quotes with bounded retries
+        run: python public-quote-capture-20261029/fetch.py
+      - name: Preserve public raw quote evidence even on provider errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: elisa-dukas-eurusd-20261029-public-quotes
+          path: public_bidask_20261029/
+          if-no-files-found: warn
+          retention-days: 1
