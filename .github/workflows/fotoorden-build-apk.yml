@@ -22,6 +22,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - name: Setup Android SDK command-line tools
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+          log-accepted-android-sdk-licenses: 'false'
       - name: Install Android 35 SDK
         run: |
           yes | sdkmanager --licenses >/dev/null || true
