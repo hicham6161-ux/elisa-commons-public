@@ -1,0 +1,50 @@
+name: Diagnose FotoOrden v0.2 crash on Android
+on:
+  push:
+    branches: [fotoorden-ia-crash-debug-20261109]
+    paths: ['.github/workflows/fotoorden-crash-debug.yml']
+  workflow_dispatch:
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download v0.2 APK
+        run: |
+          curl -fsSL --retry 4 -L 'https://raw.githubusercontent.com/hicham6161-ux/elisa-commons-public/fotoorden-ia-drive-bridge-20261109/FotoOrdenIA_v0_2.apk' -o /tmp/fotoorden.apk
+          ls -lh /tmp/fotoorden.apk
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm || true
+      - name: Run on Android 35 emulator and capture crashes
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          disable-animations: true
+          script: |
+            set +e
+            adb install -r /tmp/fotoorden.apk
+            adb logcat -c
+            echo '=== LAUNCH WITHOUT PERMISSION ==='
+            adb shell am start -W -n com.eian.fotoorden/.MainActivity
+            sleep 7
+            echo '=== CRASH BUFFER ==='
+            adb logcat -b crash -d -v time | tail -n 240
+            echo '=== FATAL EXCEPTION ALL BUFFER ==='
+            adb logcat -d -v time | grep -A 45 -B 5 'FATAL EXCEPTION\|AndroidRuntime\|Process com.eian.fotoorden has died' | tail -n 190
+            echo '=== GRANT PERMISSION ==='
+            adb shell pm grant com.eian.fotoorden android.permission.READ_MEDIA_IMAGES || true
+            adb shell am force-stop com.eian.fotoorden
+            adb logcat -c
+            adb shell am start -W -n com.eian.fotoorden/.MainActivity
+            sleep 8
+            echo '=== SECOND LAUNCH CRASH BUFFER ==='
+            adb logcat -b crash -d -v time | tail -n 240
+            echo '=== PROCESS EXISTS ==='
+            adb shell pidof com.eian.fotoorden || true
+            echo '=== RELEVANT ACTIVITY DUMPSYS ==='
+            adb shell dumpsys activity activities | grep -E 'mResumedActivity|topResumedActivity|com.eian.fotoorden' | head -n 35
