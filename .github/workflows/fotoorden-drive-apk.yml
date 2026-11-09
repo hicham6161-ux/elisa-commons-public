@@ -1,0 +1,61 @@
+name: FotoOrden IA v0.2 Puente Drive APK
+on:
+  push:
+    branches: [fotoorden-ia-drive-bridge-20261109]
+    paths: ['.github/workflows/fotoorden-drive-apk.yml']
+  workflow_dispatch:
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout build
+        uses: actions/checkout@v4
+      - name: Download verified base and addon
+        shell: bash
+        run: |
+          curl -fsSL --retry 3 'https://e9c82238-9ab8-4e1d-8080-11ec47c88a15.sandbox.floot.app/_cdn/static/b3b6e1fa-c6e0-4892-bd9b-f2daa6e9afc5-FotoOrdenIA_Android_v0_1_beta.zip' -o source.zip
+          echo '6e534592aa3bf512162101f305baf596aabd83172e5c5efafc0eaca4dc9a2d1d  source.zip' | sha256sum -c -
+          curl -fsSL --retry 3 'https://e9c82238-9ab8-4e1d-8080-11ec47c88a15.sandbox.floot.app/_cdn/static/6ac92e2d-c2c5-4c8d-a69e-d866f139c23a-FotoOrdenIA_DriveBridge_Addon_v0_2.zip' -o addon.zip
+          echo 'c0ea12d1700f248adb2b8b59a5bae6283855f745707117bd40a77e3a92400553  addon.zip' | sha256sum -c -
+          unzip -q source.zip
+          unzip -q addon.zip
+          python3 fotoorden_addon/install_addon.py
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+          log-accepted-android-sdk-licenses: 'false'
+      - name: Install Android platform
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Build APK
+        working-directory: FotoOrdenIA_Android
+        run: gradle --no-daemon :app:assembleDebug --stacktrace
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FotoOrdenIA-v0.2-DriveBridge
+          path: FotoOrdenIA_Android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+      - name: Make a direct-download APK in this branch
+        shell: bash
+        run: |
+          cp FotoOrdenIA_Android/app/build/outputs/apk/debug/app-debug.apk FotoOrdenIA_v0_2.apk
+          stat -c '%n %s bytes' FotoOrdenIA_v0_2.apk
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f FotoOrdenIA_v0_2.apk
+          git commit -m 'release: FotoOrden IA Drive Bridge v0.2 APK'
+          git push origin HEAD:refs/heads/fotoorden-ia-drive-bridge-20261109
